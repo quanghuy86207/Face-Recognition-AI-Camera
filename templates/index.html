@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Chấm Công AI Doanh Nghiệp</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #050a15; 
+            color: #e0e6ed;
+            margin: 0;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header, .panel {
+            background: #0a1128;
+            border: 1px solid #1a2b4c;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+        }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; margin-bottom: 20px;
+        }
+        h1, h3 { color: #00e5ff !important; text-shadow: 0 0 8px rgba(0, 229, 255, 0.3); }
+        .clock { font-size: 26px; font-weight: bold; color: #00e5ff; font-family: 'Courier New', monospace; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
+        .stats { font-size: 18px; background: #0d1830; padding: 10px 20px; border-radius: 5px; border-left: 5px solid #00e5ff; font-weight: bold; }
+        .main-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; }
+        .panel { padding: 20px; }
+        
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #1a2b4c;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            background: #000;
+        }
+        
+        /* BẢN VÁ LỖI: Lật video thành gương (scaleX(-1)), nhưng KHÔNG lật img để chữ Python gửi về không bị ngược */
+        video { width: 100%; display: block; transform: scaleX(-1); }
+        img { width: 100%; display: block; }
+        
+        .face-guide {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px; height: 280px;
+            border: 2px dashed #00ff88;
+            border-radius: 50% 50% 40% 40% / 40% 40% 50% 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+            pointer-events: none; 
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 136, 0.6); }
+            100% { box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
+        }
+
+        .log-container { height: 300px; overflow-y: auto; background: #050a15; padding: 15px; border-radius: 8px; border: 1px solid #1a2b4c; }
+        .log-item { background: #0d1830; padding: 12px; margin-bottom: 10px; border-radius: 5px; border-left: 5px solid #00ff88; font-size: 15px; font-weight: 500; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .btn { padding: 12px 25px; background: #0078d4; color: white; border: 1px solid #00e5ff; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 15px; transition: all 0.3s ease; }
+        .btn:hover:not(:disabled) { background: #00e5ff; color: #050a15; box-shadow: 0 0 15px rgba(0, 229, 255, 0.6); }
+        .btn:disabled { background: #333; color: #888; border-color: #555; cursor: not-allowed; }
+        .input-txt { padding: 12px; border-radius: 5px; border: 1px solid #1a2b4c; background: #050a15; color: #00e5ff; font-size: 15px; transition: 0.3s; }
+        .input-txt:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="margin: 0; font-size: 26px;">🌐 AI TIME ATTENDANCE</h1>
+                <p style="margin: 5px 0 0 0; color: #4a6b8c;">Hệ thống nhận diện khuôn mặt bảo mật cao</p>
+            </div>
+            <div class="clock" id="live-clock">00:00:00</div>
+            <div class="stats">👥 Tổng nhân sự: <strong style="color: #00e5ff; font-size: 22px;">{{ total_emp }}</strong></div>
+        </div>
+
+        <div class="main-layout">
+            <div class="panel">
+                <h3 style="margin-top: 0;">📡 Luồng Camera Trực Tiếp</h3>
+                
+                <div class="video-wrapper">
+                    <video id="video" autoplay playsinline></video>
+                    <div class="face-guide"></div> 
+                </div>
+                
+                <div style="margin-top: 15px;">
+                    <button id="captureBtn" class="btn" style="width: 100%; padding: 15px; font-size: 16px;">🧿 QUÉT KHUÔN MẶT CHẤM CÔNG</button>
+                </div>
+                
+                <h3 style="margin-top: 25px;">🔬 Phân Tích Nhận Diện</h3>
+                <div id="status" style="font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #4a6b8c;">Đang chờ dữ liệu...</div>
+                <img id="resultImg" style="display: none;" src="" alt="Kết quả AI">
+            </div>
+
+            <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="margin-top: 0;">📊 Nhật Ký Check-in/out</h3>
+                    <div class="log-container" id="attendance-logs">
+                        <div style="color: #4a6b8c; text-align: center; margin-top: 120px; font-style: italic;" id="no-log-msg">
+                            Chưa có lượt quét nào trong phiên này...
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #1a2b4c;">
+                    <h3 style="margin-top: 0;">🔐 Cấp Phân Quyền (Burst Mode 10x)</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="text" id="empId" class="input-txt" placeholder="Mã NV (VD: NV01)" style="width: 35%;">
+                        <input type="text" id="empName" class="input-txt" placeholder="Họ Tên (VD: Huy)" style="width: 65%;">
+                    </div>
+                    <button id="addBtn" onclick="addUser()" class="btn" style="width: 100%;">TIẾN HÀNH QUÉT MẶT TỰ ĐỘNG</button>
+                    <p id="add-status" style="margin-top: 12px; font-weight: bold; font-size: 15px; text-align: center;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const captureBtn = document.getElementById('captureBtn');
+        const statusDiv = document.getElementById('status');
+        const resultImg = document.getElementById('resultImg');
+        const logsContainer = document.getElementById('attendance-logs');
+        const noLogMsg = document.getElementById('no-log-msg');
+
+        setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('vi-VN'); }, 1000);
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { console.error("Không mở được camera: ", err); });
+
+        captureBtn.addEventListener('click', () => {
+            statusDiv.innerText = "⏳ Đang trích xuất đặc trưng sinh trắc học...";
+            statusDiv.style.color = "#00e5ff";
+
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // Lật Canvas để ảnh gửi về Server giống hệt như đang soi gương
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0);
+            
+            fetch('/recognize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: canvas.toDataURL('image/jpeg') })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.image) { resultImg.src = data.image; resultImg.style.display = "inline-block"; }
+                
+                statusDiv.innerText = "Kết quả: " + data.name;
+                statusDiv.style.color = data.name.includes("Người lạ") ? "#ff4444" : "#00ff88";
+
+                if (data.new_logs && data.new_logs.length > 0) {
+                    if (noLogMsg) noLogMsg.remove(); 
+                    data.new_logs.forEach(log => {
+                        const item = document.createElement('div');
+                        item.className = 'log-item';
+                        item.innerText = `[ACCESS GRANTED] ${log}`;
+                        logsContainer.insertBefore(item, logsContainer.firstChild);
+                    });
+                }
+            }).catch(() => { statusDiv.innerText = "❌ Mất kết nối đến máy chủ AI!"; statusDiv.style.color = "#ff4444"; });
+        });
+
+        // ========================================================
+        // TÍNH NĂNG ĐĂNG KÝ CÓ CHỈ DẪN HƯỚNG MẶT
+        // ========================================================
+        async function addUser() {
+            const empId = document.getElementById('empId').value.trim();
+            const empName = document.getElementById('empName').value.trim();
+            const addStatus = document.getElementById('add-status');
+            const addBtn = document.getElementById('addBtn');
+
+            if (!empId || !empName) { addStatus.innerText = "⚠️ Phải nhập đầy đủ Mã NV và Họ Tên!"; addStatus.style.color = "#ff9800"; return; }
+            if (empId.includes('_') || empName.includes('_') || empName.includes('-')) { addStatus.innerText = "⚠️ Không dùng ký tự gạch dưới hoặc gạch ngang!"; addStatus.style.color = "#ff4444"; return; }
+
+            const baseName = empId + "_" + empName;
+            let successCount = 0;
+            addBtn.disabled = true;
+
+            const instructions = [
+                "📸 [1/10] Hãy nhìn thẳng vào camera...",
+                "📸 [2/10] Vẫn nhìn thẳng, mở to mắt...",
+                "📸 [3/10] Từ từ quay mặt nhẹ sang TRÁI...",
+                "📸 [4/10] Giữ nguyên góc mặt TRÁI...",
+                "📸 [5/10] Từ từ quay mặt nhẹ sang PHẢI...",
+                "📸 [6/10] Giữ nguyên góc mặt PHẢI...",
+                "📸 [7/10] Hơi ngẩng mặt lên TRÊN...",
+                "📸 [8/10] Hơi cúi mặt XUỐNG DƯỚI...",
+                "📸 [9/10] Nghiêng nhẹ đầu sang một bên...",
+                "📸 [10/10] Nhìn thẳng mỉm cười để hoàn tất!"
+            ];
+
+            for (let i = 1; i <= 10; i++) {
+                addStatus.innerText = instructions[i-1];
+                addStatus.style.color = "#00e5ff";
+
+                const tempCanvas = document.createElement('canvas'); 
+                tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
+                const ctx = tempCanvas.getContext('2d');
+                
+                // Lật Canvas cho chế độ đăng ký
+                ctx.translate(tempCanvas.width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(video, 0, 0);
+
+                try {
+                    const response = await fetch('/add_user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: baseName + "-" + i, image: tempCanvas.toDataURL('image/jpeg') })
+                    });
+                    const data = await response.json();
+                    if(data.success) successCount++;
+                } catch (error) { console.error('Lỗi truyền tải ở ảnh số', i); }
+
+                await new Promise(resolve => setTimeout(resolve, 1000)); 
+            }
+
+            addBtn.disabled = false;
+            if (successCount > 0) {
+                addStatus.innerText = `✅ HOÀN TẤT! Ghi nhận ${successCount}/10 góc mặt.`;
+                addStatus.style.color = "#00ff88";
+                document.getElementById('empId').value = ""; document.getElementById('empName').value = "";
+                setTimeout(() => { location.reload(); }, 2500);
+            } else {
+                addStatus.innerText = "❌ Lỗi: Hệ thống không nhìn thấy mặt bạn!";
+                addStatus.style.color = "#ff4444";
+            }
+        }
+    </script>
+</body>
+</html>
