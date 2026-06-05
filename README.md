@@ -39,7 +39,6 @@ python app.py
 Nếu muốn chạy hệ thống chấm công này thông qua mạng Internet (tiện cho việc test camera bằng thiết bị di động bên ngoài):
 Mở Terminal mới tại thư mục dự án.
 Chạy lệnh:
-Bash
 ngrok http 5000
 Sao chép đường dẫn có đuôi *.ngrok-free.app (sử dụng giao thức https://) và mở trên trình duyệt của thiết bị khác.
 🔒 Quy định File .gitignore
