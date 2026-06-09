@@ -2,4 +2,7 @@ __pycache__/
 *.pyc
 .DS_Store
 database/
+attendance.db
+face_cache.pkl
+Bao_Cao_Cham_Cong.csv
 Danh_Sach_Cham_Cong.csv

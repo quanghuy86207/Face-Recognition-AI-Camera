@@ -3,120 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chấm Công AI Doanh Nghiệp</title>
+    <title>Hệ Thống Kiểm Soát Sinh Trắc Học AI</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #050a15; 
-            color: #e0e6ed;
-            margin: 0;
-            padding: 20px;
-        }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header, .panel {
-            background: #0a1128;
-            border: 1px solid #1a2b4c;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
-        }
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 30px; margin-bottom: 20px;
-        }
-        h1, h3 { color: #00e5ff !important; text-shadow: 0 0 8px rgba(0, 229, 255, 0.3); }
-        .clock { font-size: 26px; font-weight: bold; color: #00e5ff; font-family: 'Courier New', monospace; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
-        .stats { font-size: 18px; background: #0d1830; padding: 10px 20px; border-radius: 5px; border-left: 5px solid #00e5ff; font-weight: bold; }
-        .main-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; }
-        .panel { padding: 20px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid #1a2b4c;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            background: #000;
-        }
-        
-        /* BẢN VÁ LỖI: Lật video thành gương (scaleX(-1)), nhưng KHÔNG lật img để chữ Python gửi về không bị ngược */
-        video { width: 100%; display: block; transform: scaleX(-1); }
-        img { width: 100%; display: block; }
-        
-        .face-guide {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 220px; height: 280px;
-            border: 2px dashed #00ff88;
-            border-radius: 50% 50% 40% 40% / 40% 40% 50% 50%;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
-            pointer-events: none; 
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
-            50% { box-shadow: 0 0 25px rgba(0, 255, 136, 0.6); }
-            100% { box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
-        }
+        body { background-color: #02040a; background-image: radial-gradient(circle at 60% 50%, #0a1128 0%, #02040a 100%); color: #e2e8f0; height: 100vh; width: 100vw; overflow: hidden; display: flex; }
 
-        .log-container { height: 300px; overflow-y: auto; background: #050a15; padding: 15px; border-radius: 8px; border: 1px solid #1a2b4c; }
-        .log-item { background: #0d1830; padding: 12px; margin-bottom: 10px; border-radius: 5px; border-left: 5px solid #00ff88; font-size: 15px; font-weight: 500; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-        .btn { padding: 12px 25px; background: #0078d4; color: white; border: 1px solid #00e5ff; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 15px; transition: all 0.3s ease; }
-        .btn:hover:not(:disabled) { background: #00e5ff; color: #050a15; box-shadow: 0 0 15px rgba(0, 229, 255, 0.6); }
-        .btn:disabled { background: #333; color: #888; border-color: #555; cursor: not-allowed; }
-        .input-txt { padding: 12px; border-radius: 5px; border: 1px solid #1a2b4c; background: #050a15; color: #00e5ff; font-size: 15px; transition: 0.3s; }
-        .input-txt:focus { outline: none; border-color: #00e5ff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.4); }
+        .sidebar { width: 260px; background: #040814; border-right: 1px solid #1e3a8a; display: flex; flex-direction: column; padding: 25px 20px; flex-shrink: 0; z-index: 20; box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5); }
+        .sidebar-logo { font-size: 20px; font-weight: 900; color: #00f3ff; letter-spacing: 1.5px; display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding-bottom: 15px; border-bottom: 1px solid rgba(30, 58, 138, 0.4); text-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+        .logo-svg { width: 32px; height: 32px; fill: none; stroke: #00ff66; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 5px #00ff66); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #94a3b8; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; border: 1px solid transparent; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .menu-item:hover, .menu-item.active { color: #00f3ff; background: rgba(0, 243, 255, 0.05); border-color: rgba(0, 243, 255, 0.2); box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.1); }
+
+        .main-content { flex: 1; height: 100%; padding: 20px; min-width: 0; }
+        .container { display: grid; grid-template-columns: 1fr 1.15fr; gap: 20px; width: 100%; height: 100%; }
+        
+        .card { background: rgba(9, 17, 33, 0.7); backdrop-filter: blur(12px); border-radius: 8px; border: 1px solid #1e3a8a; display: flex; flex-direction: column; overflow: hidden; }
+        .card-header { padding: 12px 20px; border-bottom: 1px solid #1e3a8a; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, #091121 0%, #050a15 100%); color: #00f3ff; text-transform: uppercase; }
+        .header-dot { color: #ff0055; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .scanner-body { padding: 15px; display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
+        .video-wrapper { position: relative; width: 100%; flex: 1; background: #000; border: 1px solid #1e3a8a; border-radius: 4px; overflow: hidden; }
+        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); position: absolute; top: 0; left: 0; }
+        
+        .corner { position: absolute; width: 40px; height: 40px; border-color: #00f3ff; border-style: solid; z-index: 10; filter: drop-shadow(0 0 4px #00f3ff); }
+        .c-tl { top: 15px; left: 15px; border-width: 3px 0 0 3px; } .c-tr { top: 15px; right: 15px; border-width: 3px 3px 0 0; }
+        .c-bl { bottom: 15px; left: 15px; border-width: 0 0 3px 3px; } .c-br { bottom: 15px; right: 15px; border-width: 0 3px 3px 0; }
+
+        .terminal-log { background: #010409; border: 1px solid #1e3a8a; border-radius: 4px; padding: 10px; height: 100px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 13px; color: #00ff66; flex-shrink: 0; }
+        .terminal-title { color: #00f3ff; margin-bottom: 4px; font-size: 12px; font-weight: bold; }
+
+        /* THIẾT KẾ CÔNG TẮC CHỌN IN/OUT */
+        .mode-toggle { display: flex; background: #02040a; border: 1px solid #1e3a8a; border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+        .mode-btn { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.3s; color: #64748b; }
+        .mode-btn.active-in { background: rgba(0, 255, 102, 0.15); color: #00ff66; border-bottom: 3px solid #00ff66; text-shadow: 0 0 8px rgba(0,255,102,0.5); }
+        .mode-btn.active-out { background: rgba(255, 0, 85, 0.15); color: #ff0055; border-bottom: 3px solid #ff0055; text-shadow: 0 0 8px rgba(255,0,85,0.5); }
+
+        .fallback-section { background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 4px; padding: 8px; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+        .fallback-title { font-size: 12px; color: #f59e0b; font-weight: bold; white-space: nowrap; text-transform: uppercase; }
+        
+        .register-section { background: rgba(0, 0, 0, 0.3); border: 1px solid #1e3a8a; border-radius: 4px; padding: 8px; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+        
+        .input-txt { background: #02040a; border: 1px solid #1e3a8a; color: #fff; padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none; transition: 0.2s; min-width: 0; }
+        .input-txt:focus { border-color: #00f3ff; }
+        .input-fallback:focus { border-color: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); }
+
+        #empId { flex: 0.8; } #empName { flex: 1.5; } #empDept { flex: 1.1; }
+        
+        .btn-reg { background: transparent; color: #00ff66; border: 1px solid #00ff66; padding: 8px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn-reg:hover:not(:disabled) { background: #00ff66; color: #000; }
+        
+        .btn-fallback { color: #f59e0b; border-color: #f59e0b; }
+        .btn-fallback:hover:not(:disabled) { background: #f59e0b; color: #000; }
+
+        .btn-primary { background: rgba(0, 243, 255, 0.05); color: #00f3ff; border: 1px solid #00f3ff; padding: 12px; font-size: 14px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.3s; text-transform: uppercase; flex-shrink: 0; letter-spacing: 2px; }
+        .btn-primary:hover:not(:disabled) { background: #00f3ff; color: #000; box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+
+        .right-col { display: flex; flex-direction: column; gap: 15px; min-height: 0; }
+        
+        .info-body { padding: 15px; display: flex; gap: 20px; align-items: center; }
+        .avatar-box { width: 120px; height: 120px; border: 1px solid #1e3a8a; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden; flex-shrink: 0; }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+        .info-text { display: flex; flex-direction: column; justify-content: center; gap: 10px; flex: 1; }
+        .info-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #1e3a8a; padding-bottom: 5px; font-size: 14px; }
+        .info-label { color: #64748b; text-transform: uppercase; font-size: 11px; font-weight: bold; }
+        .info-val { font-weight: 600; color: #fff; font-size: 14px; text-align: right; }
+        
+        .badge { padding: 3px 8px; border-radius: 2px; font-size: 11px; font-weight: bold; text-transform: uppercase; border: 1px solid #4b5563; color: #9ca3af; white-space: nowrap; }
+        .badge.success { background: rgba(0, 255, 102, 0.1); color: #00ff66; border-color: #00ff66; }
+        .badge.error { background: rgba(255, 0, 85, 0.1); color: #ff0055; border-color: #ff0055; }
+        .badge.warn { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: #f59e0b; }
+        /* ĐÃ SỬA MÀU: Đổi Check Out thành màu Xanh Dương Cyan để phân biệt với lỗi */
+        .badge.out { background: rgba(0, 243, 255, 0.1); color: #00f3ff; border-color: #00f3ff; } 
+
+        .dash-body { padding: 15px; display: flex; gap: 20px; }
+        .dash-left { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .dash-progress-title { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
+        .dash-progress-bar { height: 8px; background: #0f172a; border-radius: 4px; overflow: hidden; border: 1px solid #1e3a8a; }
+        .dash-progress-fill { height: 100%; background: #00f3ff; width: 0%; transition: width 0.5s ease; box-shadow: 0 0 10px #00f3ff; }
+        .dash-alert { margin-top: 10px; font-size: 12px; color: #ff0055; display: none; font-weight: bold; }
+        
+        .dash-right { flex: 1; border-left: 1px solid #1e3a8a; padding-left: 15px; }
+        .dash-right-title { font-size: 11px; color: #64748b; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+        .missing-list { height: 55px; overflow-y: auto; font-size: 13px; color: #ff0055; display: flex; flex-direction: column; gap: 4px; font-family: monospace; }
+
+        .table-wrapper { flex: 1; overflow-y: auto; padding: 0 15px 15px 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
+        th { color: #00f3ff; font-size: 11px; font-weight: bold; padding: 10px; border-bottom: 1px solid #1e3a8a; position: sticky; top: 0; background: #091121; z-index: 5; text-transform: uppercase; }
+        td { padding: 10px; border-bottom: 1px solid #1e3a8a; font-size: 13px; color: #e2e8f0; }
+        .time-txt { color: #00f3ff; font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #02040a; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div>
-                <h1 style="margin: 0; font-size: 26px;">🌐 AI TIME ATTENDANCE</h1>
-                <p style="margin: 5px 0 0 0; color: #4a6b8c;">Hệ thống nhận diện khuôn mặt bảo mật cao</p>
-            </div>
-            <div class="clock" id="live-clock">00:00:00</div>
-            <div class="stats">👥 Tổng nhân sự: <strong style="color: #00e5ff; font-size: 22px;">{{ total_emp }}</strong></div>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <svg class="logo-svg" viewBox="0 0 24 24" style="stroke: #00ff66; filter: drop-shadow(0 0 5px #00ff66);">
+                <polygon points="12 2 22 7 22 17 12 22 2 17 2 7"></polygon>
+                <path d="M14.5 10c-.5-1-1.5-1.5-2.5-1.5a3.5 3.5 0 1 0 0 7c1.5 0 2.5-1 3-2v-2h-3"></path>
+            </svg>
+            <div><span style="color: #ffffff;">G</span><span style="color: #00ff66;">ZONE</span></div>
         </div>
+        <div class="sidebar-menu">
+            <a href="/" class="menu-item active">🏠 Trang Chủ</a>
+            <a href="/admin" class="menu-item">👥 Quản Trị Nhân Sự</a>
+        </div>
+    </div>
 
-        <div class="main-layout">
-            <div class="panel">
-                <h3 style="margin-top: 0;">📡 Luồng Camera Trực Tiếp</h3>
-                
-                <div class="video-wrapper">
-                    <video id="video" autoplay playsinline></video>
-                    <div class="face-guide"></div> 
+    <div class="main-content">
+        <div class="container">
+            <div class="card">
+                <div class="card-header"><div><span class="header-dot">🔴</span> GIÁM SÁT LUỒNG QUÉT</div></div>
+                <div class="scanner-body">
+                    <div class="video-wrapper">
+                        <video id="video" autoplay playsinline></video>
+                        <div class="corner c-tl"></div><div class="corner c-tr"></div>
+                        <div class="corner c-bl"></div><div class="corner c-br"></div>
+                    </div>
+
+                    <div class="terminal-log" id="term-log">
+                        <div class="terminal-title">>> TRẠNG THÁI HỆ THỐNG:</div>
+                        <span style="color:#00ff66;">> [HỆ THỐNG] Đã tải Database. Sẵn sàng nhận diện.</span>
+                    </div>
+
+                    <div class="mode-toggle">
+                        <div class="mode-btn active-in" id="btn-mode-in" onclick="setMode('IN')">🟢 CHECK IN (VÀO CA)</div>
+                        <div class="mode-btn" id="btn-mode-out" onclick="setMode('OUT')">🔴 CHECK OUT (TAN CA)</div>
+                    </div>
+
+                    <div class="fallback-section">
+                        <span class="fallback-title">DỰ PHÒNG:</span>
+                        <input type="text" id="manualId" class="input-txt input-fallback" placeholder="Nhập Mã NV hoặc Quét QR..." style="flex: 1;">
+                        <button onclick="manualCheckIn()" class="btn-reg btn-fallback">XÁC NHẬN MÃ</button>
+                    </div>
+
+                    <div class="register-section">
+                        <span class="register-title">Đăng ký:</span>
+                        <input type="text" id="empId" class="input-txt" placeholder="Mã NV">
+                        <input type="text" id="empName" class="input-txt" placeholder="Họ Tên">
+                        <input type="text" id="empDept" class="input-txt" placeholder="Phòng ban">
+                        <button id="addBtn" onclick="addUser()" class="btn-reg">Quét 10x</button>
+                    </div>
+
+                    <button id="captureBtn" class="btn-primary">Kích Hoạt Nhận Diện (CHECK IN)</button>
                 </div>
-                
-                <div style="margin-top: 15px;">
-                    <button id="captureBtn" class="btn" style="width: 100%; padding: 15px; font-size: 16px;">🧿 QUÉT KHUÔN MẶT CHẤM CÔNG</button>
-                </div>
-                
-                <h3 style="margin-top: 25px;">🔬 Phân Tích Nhận Diện</h3>
-                <div id="status" style="font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #4a6b8c;">Đang chờ dữ liệu...</div>
-                <img id="resultImg" style="display: none;" src="" alt="Kết quả AI">
             </div>
 
-            <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <h3 style="margin-top: 0;">📊 Nhật Ký Check-in/out</h3>
-                    <div class="log-container" id="attendance-logs">
-                        <div style="color: #4a6b8c; text-align: center; margin-top: 120px; font-style: italic;" id="no-log-msg">
-                            Chưa có lượt quét nào trong phiên này...
+            <div class="right-col">
+                <div class="card" style="flex: none;">
+                    <div class="card-header">HỒ SƠ ĐỊNH DANH</div>
+                    <div class="info-body">
+                        <div class="avatar-box">
+                            <span id="placeholder" style="color:#1e3a8a; font-size:11px; text-transform:uppercase;">Scanning...</span>
+                            <img id="resultImg" style="display:none;" src="" alt="Face">
+                        </div>
+                        <div class="info-text">
+                            <div class="info-row"><span class="info-label">Mã Nhân Viên</span><span class="info-val" id="info-id">---</span></div>
+                            <div class="info-row"><span class="info-label">Họ và Tên</span><span class="info-val" id="info-name">Đang chờ quét...</span></div>
+                            <div class="info-row"><span class="info-label">Phòng Ban</span><span class="info-val" id="info-dept">---</span></div>
+                            <div class="info-row" style="border:none; padding-bottom:0;"><span class="info-label">Trạng Thái</span><span class="badge" id="info-status">Chờ Dữ Liệu</span></div>
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #1a2b4c;">
-                    <h3 style="margin-top: 0;">🔐 Cấp Phân Quyền (Burst Mode 10x)</h3>
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <input type="text" id="empId" class="input-txt" placeholder="Mã NV (VD: NV01)" style="width: 35%;">
-                        <input type="text" id="empName" class="input-txt" placeholder="Họ Tên (VD: Huy)" style="width: 65%;">
+                <div class="card" style="flex: none;">
+                    <div class="card-header" style="color: #fff;">📊 THỐNG KÊ CA LÀM VIỆC (08:30)</div>
+                    <div class="dash-body">
+                        <div class="dash-left">
+                            <div class="dash-progress-title">
+                                <span>Tiến độ Check-in</span>
+                                <span id="dash-count" style="color: #00f3ff; font-weight: bold;">0/0</span>
+                            </div>
+                            <div class="dash-progress-bar"><div class="dash-progress-fill" id="dash-fill"></div></div>
+                            <div class="dash-alert" id="dash-late">⚠️ Có 0 nhân viên đi muộn</div>
+                        </div>
+                        <div class="dash-right">
+                            <div class="dash-right-title">DANH SÁCH CHƯA ĐẾN:</div>
+                            <div class="missing-list" id="dash-missing"></div>
+                        </div>
                     </div>
-                    <button id="addBtn" onclick="addUser()" class="btn" style="width: 100%;">TIẾN HÀNH QUÉT MẶT TỰ ĐỘNG</button>
-                    <p id="add-status" style="margin-top: 12px; font-weight: bold; font-size: 15px; text-align: center;"></p>
+                </div>
+
+                <div class="card" style="flex: 1;">
+                    <div class="card-header">LỊCH SỬ TRUY CẬP</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>Thời Gian</th><th>Mã NV</th><th>Họ và Tên</th><th>Trạng Thái</th></tr></thead>
+                            <tbody id="log-table">
+                                <tr id="empty-msg"><td colspan="4" style="text-align:center; color:#4b5563; padding:20px; font-style: italic; font-size: 12px;">Chưa có dữ liệu truy cập...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -125,119 +208,170 @@
     <script>
         const video = document.getElementById('video');
         const captureBtn = document.getElementById('captureBtn');
-        const statusDiv = document.getElementById('status');
-        const resultImg = document.getElementById('resultImg');
-        const logsContainer = document.getElementById('attendance-logs');
-        const noLogMsg = document.getElementById('no-log-msg');
+        const terminal = document.getElementById('term-log');
+        const tbody = document.getElementById('log-table');
+        
+        let currentLogType = 'IN';
 
-        setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('vi-VN'); }, 1000);
+        function setMode(mode) {
+            currentLogType = mode;
+            if(mode === 'IN') {
+                document.getElementById('btn-mode-in').classList.add('active-in');
+                document.getElementById('btn-mode-out').classList.remove('active-out');
+                document.getElementById('captureBtn').innerText = "Kích Hoạt Nhận Diện (CHECK IN)";
+            } else {
+                document.getElementById('btn-mode-in').classList.remove('active-in');
+                document.getElementById('btn-mode-out').classList.add('active-out');
+                document.getElementById('captureBtn').innerText = "Kích Hoạt Nhận Diện (CHECK OUT)";
+            }
+        }
 
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => { video.srcObject = stream; })
-            .catch(err => { console.error("Không mở được camera: ", err); });
+            .catch(err => { logToTerminal("Lỗi kết nối Camera!", "error"); });
+
+        function logToTerminal(msg, type) {
+            let color = "#00ff66", prefix = "[CHẤP THUẬN]";
+            if(type === "process") { color = "#00f3ff"; prefix = "[TIẾN TRÌNH]"; }
+            if(type === "error") { color = "#ff0055"; prefix = "[TỪ CHỐI]"; }
+            if(type === "warn") { color = "#f59e0b"; prefix = "[HỆ THỐNG]"; } 
+            terminal.innerHTML += `<br><span style="color:${color};">> ${prefix} ${msg}</span>`;
+            terminal.scrollTop = terminal.scrollHeight; 
+        }
+
+        function fetchDashboard() {
+            fetch('/api/daily_stats').then(res => res.json()).then(data => {
+                document.getElementById('dash-count').innerText = `${data.checked}/${data.total}`;
+                
+                // ĐÃ SỬA: Chặn giới hạn 100% để thanh kéo không bị vỡ giao diện
+                let percent = data.total > 0 ? Math.min((data.checked / data.total) * 100, 100) : 0;
+                document.getElementById('dash-fill').style.width = `${percent}%`;
+                
+                let lateEl = document.getElementById('dash-late');
+                if(data.late > 0) { lateEl.style.display = "block"; lateEl.innerText = `⚠️ Có ${data.late} nhân viên đi muộn (Sau 08:30)`; } 
+                else { lateEl.style.display = "none"; }
+                
+                let missingHtml = data.missing.length === 0 ? "<span style='color:#00ff66;'>Đã có mặt đầy đủ!</span>" : data.missing.map(p => `<div>${p}</div>`).join('');
+                document.getElementById('dash-missing').innerHTML = missingHtml;
+            });
+        }
+        fetchDashboard(); setInterval(fetchDashboard, 10000);
+
+        document.getElementById('manualId').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); manualCheckIn(); }
+        });
+
+        function manualCheckIn() {
+            const empIdInput = document.getElementById('manualId');
+            const empId = empIdInput.value.trim();
+            if(!empId) return logToTerminal("Vui lòng nhập Mã NV hoặc quét mã QR!", "error");
+
+            logToTerminal(`Đang truy vấn dữ liệu thẻ: ${empId}...`, "warn");
+
+            fetch('/manual_checkin', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ emp_id: empId, log_type: currentLogType }) 
+            }).then(res => res.json()).then(data => {
+                empIdInput.value = ""; 
+                if(data.success) {
+                    logToTerminal(`Xác thực thành công: ${data.emp_id} - ${data.emp_name}`, "success");
+                    
+                    document.getElementById('info-id').innerText = data.emp_id;
+                    document.getElementById('info-name').innerText = data.emp_name;
+                    document.getElementById('info-dept').innerText = data.emp_dept;
+                    
+                    let badge = document.getElementById('info-status');
+                    badge.innerText = `Thành Công (${currentLogType})`; 
+                    badge.className = currentLogType === 'IN' ? "badge warn" : "badge out";
+
+                    let parts = data.log.split(' - ');
+                    let time = parts[0], status = parts[1];
+                    let badgeClass = status.includes("Muộn") ? "error" : (status.includes("OUT") ? "out" : "success");
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="time-txt">${time}</td>
+                        <td style="font-weight: bold; color: #fff;">${data.emp_id}</td>
+                        <td style="color: #94a3b8;">${data.emp_name}</td>
+                        <td><span class="badge ${badgeClass}">${status} (Mã/QR)</span></td>
+                    `;
+                    document.getElementById('empty-msg').style.display = "none";
+                    tbody.insertBefore(tr, tbody.firstChild);
+                    fetchDashboard();
+                } else {
+                    logToTerminal(data.message, "error");
+                    let badge = document.getElementById('info-status');
+                    badge.innerText = "Từ Chối"; badge.className = "badge error";
+                }
+            }).catch(() => logToTerminal("Lỗi kết nối máy chủ!", "error"));
+        }
 
         captureBtn.addEventListener('click', () => {
-            statusDiv.innerText = "⏳ Đang trích xuất đặc trưng sinh trắc học...";
-            statusDiv.style.color = "#00e5ff";
+            logToTerminal("Đang phân tích sinh trắc học...", "process");
+            captureBtn.disabled = true; captureBtn.innerText = "ĐANG PHÂN TÍCH...";
+            document.getElementById('info-status').className = "badge"; document.getElementById('info-status').innerText = "Đang xử lý...";
 
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            
-            // Lật Canvas để ảnh gửi về Server giống hệt như đang soi gương
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
-            ctx.drawImage(video, 0, 0);
+            const ctx = canvas.getContext('2d'); ctx.translate(canvas.width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0);
             
             fetch('/recognize', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: canvas.toDataURL('image/jpeg') })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.image) { resultImg.src = data.image; resultImg.style.display = "inline-block"; }
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ image: canvas.toDataURL('image/jpeg'), log_type: currentLogType }) 
+            }).then(res => res.json()).then(data => {
+                captureBtn.disabled = false; captureBtn.innerText = `Kích Hoạt Nhận Diện (CHECK ${currentLogType})`;
+                if (data.image) { 
+                    document.getElementById('placeholder').style.display = "none";
+                    document.getElementById('resultImg').src = data.image; document.getElementById('resultImg').style.display = "block"; 
+                }
                 
-                statusDiv.innerText = "Kết quả: " + data.name;
-                statusDiv.style.color = data.name.includes("Người lạ") ? "#ff4444" : "#00ff88";
+                let isSuccess = data.emp_id && data.emp_id !== "N/A" && data.emp_id !== "";
+                document.getElementById('info-id').innerText = data.emp_id || "---";
+                document.getElementById('info-name').innerText = data.emp_name || "Người lạ";
+                document.getElementById('info-dept').innerText = data.emp_dept || "---";
+                
+                let badge = document.getElementById('info-status');
+                if (isSuccess) {
+                    badge.innerText = `Thành Công (${currentLogType})`; 
+                    badge.className = currentLogType === 'IN' ? "badge success" : "badge out";
+                    logToTerminal(`Xác thực (Face ID): ${data.emp_id} - ${data.emp_name}`, "success");
+                    fetchDashboard();
+                } else {
+                    badge.innerText = "Từ Chối"; badge.className = "badge error";
+                    logToTerminal("Đối tượng lạ. Từ chối truy cập.", "error");
+                }
 
                 if (data.new_logs && data.new_logs.length > 0) {
-                    if (noLogMsg) noLogMsg.remove(); 
+                    document.getElementById('empty-msg').style.display = "none"; 
                     data.new_logs.forEach(log => {
-                        const item = document.createElement('div');
-                        item.className = 'log-item';
-                        item.innerText = `[ACCESS GRANTED] ${log}`;
-                        logsContainer.insertBefore(item, logsContainer.firstChild);
+                        let parts = log.split(' - ');
+                        let time = parts[0], status = parts[1];
+                        // ĐÃ SỬA MÀU: Đổi màu cho trạng thái OUT thành Xanh Dương
+                        let badgeClass = status.includes("Muộn") ? "error" : (status.includes("OUT") ? "out" : "success");
+                        let tr = document.createElement('tr');
+                        tr.innerHTML = `<td class="time-txt">${time}</td><td style="font-weight: bold; color: #fff;">${data.emp_id}</td><td style="color: #94a3b8;">${data.emp_name}</td><td><span class="badge ${badgeClass}">${status}</span></td>`;
+                        tbody.insertBefore(tr, tbody.firstChild);
                     });
                 }
-            }).catch(() => { statusDiv.innerText = "❌ Mất kết nối đến máy chủ AI!"; statusDiv.style.color = "#ff4444"; });
+            }).catch(() => { captureBtn.disabled = false; captureBtn.innerText = `Kích Hoạt Nhận Diện (CHECK ${currentLogType})`; logToTerminal("Mất tín hiệu!", "error"); });
         });
 
-        // ========================================================
-        // TÍNH NĂNG ĐĂNG KÝ CÓ CHỈ DẪN HƯỚNG MẶT
-        // ========================================================
         async function addUser() {
-            const empId = document.getElementById('empId').value.trim();
-            const empName = document.getElementById('empName').value.trim();
-            const addStatus = document.getElementById('add-status');
+            const empId = document.getElementById('empId').value.trim(); const empName = document.getElementById('empName').value.trim(); const empDept = document.getElementById('empDept').value.trim() || 'Chưa phân phối';
             const addBtn = document.getElementById('addBtn');
-
-            if (!empId || !empName) { addStatus.innerText = "⚠️ Phải nhập đầy đủ Mã NV và Họ Tên!"; addStatus.style.color = "#ff9800"; return; }
-            if (empId.includes('_') || empName.includes('_') || empName.includes('-')) { addStatus.innerText = "⚠️ Không dùng ký tự gạch dưới hoặc gạch ngang!"; addStatus.style.color = "#ff4444"; return; }
-
-            const baseName = empId + "_" + empName;
-            let successCount = 0;
-            addBtn.disabled = true;
-
-            const instructions = [
-                "📸 [1/10] Hãy nhìn thẳng vào camera...",
-                "📸 [2/10] Vẫn nhìn thẳng, mở to mắt...",
-                "📸 [3/10] Từ từ quay mặt nhẹ sang TRÁI...",
-                "📸 [4/10] Giữ nguyên góc mặt TRÁI...",
-                "📸 [5/10] Từ từ quay mặt nhẹ sang PHẢI...",
-                "📸 [6/10] Giữ nguyên góc mặt PHẢI...",
-                "📸 [7/10] Hơi ngẩng mặt lên TRÊN...",
-                "📸 [8/10] Hơi cúi mặt XUỐNG DƯỚI...",
-                "📸 [9/10] Nghiêng nhẹ đầu sang một bên...",
-                "📸 [10/10] Nhìn thẳng mỉm cười để hoàn tất!"
-            ];
-
+            if (!empId || !empName) return logToTerminal("Thiếu dữ liệu nhân sự!", "error");
+            
+            let successCount = 0; addBtn.disabled = true;
             for (let i = 1; i <= 10; i++) {
-                addStatus.innerText = instructions[i-1];
-                addStatus.style.color = "#00e5ff";
-
-                const tempCanvas = document.createElement('canvas'); 
-                tempCanvas.width = video.videoWidth; tempCanvas.height = video.videoHeight;
-                const ctx = tempCanvas.getContext('2d');
-                
-                // Lật Canvas cho chế độ đăng ký
-                ctx.translate(tempCanvas.width, 0);
-                ctx.scale(-1, 1);
-                ctx.drawImage(video, 0, 0);
-
+                logToTerminal(`Ghi dữ liệu mặt ${i}/10`, "process");
+                const canvas = document.createElement('canvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d'); ctx.translate(canvas.width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0);
                 try {
-                    const response = await fetch('/add_user', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: baseName + "-" + i, image: tempCanvas.toDataURL('image/jpeg') })
-                    });
-                    const data = await response.json();
-                    if(data.success) successCount++;
-                } catch (error) { console.error('Lỗi truyền tải ở ảnh số', i); }
-
-                await new Promise(resolve => setTimeout(resolve, 1000)); 
+                    const response = await fetch('/add_user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: empId + "_" + empName + "_" + empDept + "-" + i, image: canvas.toDataURL('image/jpeg') }) });
+                    const data = await response.json(); if(data.success) successCount++;
+                } catch (e) {}
+                await new Promise(r => setTimeout(r, 1000)); 
             }
-
-            addBtn.disabled = false;
-            if (successCount > 0) {
-                addStatus.innerText = `✅ HOÀN TẤT! Ghi nhận ${successCount}/10 góc mặt.`;
-                addStatus.style.color = "#00ff88";
-                document.getElementById('empId').value = ""; document.getElementById('empName').value = "";
-                setTimeout(() => { location.reload(); }, 2500);
-            } else {
-                addStatus.innerText = "❌ Lỗi: Hệ thống không nhìn thấy mặt bạn!";
-                addStatus.style.color = "#ff4444";
-            }
+            if (successCount > 0) setTimeout(() => { location.reload(); }, 1500);
         }
     </script>
 </body>

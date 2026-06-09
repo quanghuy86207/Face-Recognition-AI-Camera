@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Trị - AI VISION</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #02040a; background-image: radial-gradient(circle at 60% 50%, #0a1128 0%, #02040a 100%); color: #e2e8f0; height: 100vh; width: 100vw; overflow: hidden; display: flex; }
+
+        /* SIDEBAR (GIỮ NGUYÊN) */
+        .sidebar { width: 260px; background: #040814; border-right: 1px solid #1e3a8a; display: flex; flex-direction: column; padding: 25px 20px; flex-shrink: 0; z-index: 20; box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5); }
+        .sidebar-logo { font-size: 20px; font-weight: 900; color: #00f3ff; letter-spacing: 1.5px; display: flex; align-items: center; gap: 12px; margin-bottom: 40px; padding-bottom: 15px; border-bottom: 1px solid rgba(30, 58, 138, 0.4); text-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+        .logo-svg { width: 32px; height: 32px; fill: none; stroke: #00f3ff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 5px #00f3ff); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #94a3b8; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; border: 1px solid transparent; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .menu-item:hover, .menu-item.active { color: #00f3ff; background: rgba(0, 243, 255, 0.05); border-color: rgba(0, 243, 255, 0.2); box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.1); }
+
+        .main-content { flex: 1; height: 100%; padding: 20px; min-width: 0; overflow-y: auto; }
+        .container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: none !important; }
+        
+        .card { background: rgba(9, 17, 33, 0.7); backdrop-filter: blur(12px); border-radius: 8px; border: 1px solid #1e3a8a; display: flex; flex-direction: column; overflow: hidden; }
+        .card-header { padding: 15px 20px; border-bottom: 1px solid #1e3a8a; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, #091121 0%, #050a15 100%); color: #00f3ff; text-transform: uppercase; }
+        
+        .btn-export { background: rgba(0, 255, 102, 0.1); color: #00ff66; border: 1px solid #00ff66; padding: 8px 15px; font-size: 12px; font-weight: bold; border-radius: 4px; text-decoration: none; transition: 0.3s; text-transform: uppercase; }
+        .btn-export:hover { background: #00ff66; color: #000; box-shadow: 0 0 15px rgba(0, 255, 102, 0.4); }
+
+        .btn-del { background: rgba(255, 0, 85, 0.1); color: #ff0055; border: 1px solid #ff0055; padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .btn-del:hover { background: #ff0055; color: #fff; box-shadow: 0 0 10px rgba(255, 0, 85, 0.4); }
+
+        .table-wrapper { padding: 0 20px 20px 20px; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
+        th { color: #00f3ff; font-size: 12px; font-weight: bold; padding: 12px; border-bottom: 1px solid #1e3a8a; position: sticky; top: 0; background: #091121; z-index: 5; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #1e3a8a; font-size: 14px; color: #e2e8f0; }
+        
+        .highlight { color: #00ff66; font-family: 'Courier New', monospace; font-weight: bold; font-size: 15px; }
+        .highlight-out { color: #f59e0b; font-family: 'Courier New', monospace; font-weight: bold; font-size: 15px; }
+        
+        .badge { padding: 4px 10px; border-radius: 2px; font-size: 11px; font-weight: bold; text-transform: uppercase; border: 1px solid #4b5563; }
+        .badge.success { background: rgba(0, 255, 102, 0.1); color: #00ff66; border-color: #00ff66; }
+        .badge.error { background: rgba(255, 0, 85, 0.1); color: #ff0055; border-color: #ff0055; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #02040a; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <svg class="logo-svg" viewBox="0 0 24 24" style="stroke: #00ff66; filter: drop-shadow(0 0 5px #00ff66);">
+                <polygon points="12 2 22 7 22 17 12 22 2 17 2 7"></polygon>
+                <path d="M14.5 10c-.5-1-1.5-1.5-2.5-1.5a3.5 3.5 0 1 0 0 7c1.5 0 2.5-1 3-2v-2h-3"></path>
+            </svg>
+            <div>
+                <span style="color: #ffffff;">G</span><span style="color: #00ff66;">ZONE</span>
+            </div>
+        </div>
+        <div class="sidebar-menu">
+            <a href="/" class="menu-item">🏠 Trang Chủ</a>
+            <a href="/admin" class="menu-item active">👥 Quản Trị Nhân Sự</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            
+            <div class="card">
+                <div class="card-header">👥 DANH SÁCH NHÂN SỰ TOÀN HỆ THỐNG</div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã NV</th>
+                                <th>Họ và Tên</th>
+                                <th>Phòng Ban</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emp in employees %}
+                            <tr>
+                                <td style="font-weight: bold; color: #00f3ff;">{{ emp.id }}</td>
+                                <td style="color: #fff; font-weight: bold;">{{ emp.name }}</td>
+                                <td>{{ emp.dept }}</td>
+                                <td><button class="btn-del" onclick="deleteEmployee('{{ emp.id }}', '{{ emp.name }}')">XÓA</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>⏰ BẢNG CÔNG CHI TIẾT (TÍNH TỔNG GIỜ LÀM)</span>
+                    <a href="/export_logs" class="btn-export">📥 XUẤT BÁO CÁO EXCEL</a>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Mã NV</th>
+                                <th>Họ Tên</th>
+                                <th>Check IN</th>
+                                <th>Check OUT</th>
+                                <th>Tổng Giờ</th>
+                                <th>Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{ log.date }}</td>
+                                <td style="font-weight: bold; color: #00f3ff;">{{ log.id }}</td>
+                                <td>{{ log.name }}</td>
+                                <td class="highlight">{{ log.in }}</td>
+                                <td class="highlight-out">{{ log.out }}</td>
+                                <td style="color: #fff; font-weight: bold;">{{ log.total }}</td>
+                                <td>
+                                    {% if log.status == "Đúng giờ" %}
+                                    <span class="badge success">Đúng Giờ</span>
+                                    {% else %}
+                                    <span class="badge error">Đi Muộn</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function deleteEmployee(empId, empName) {
+            if (confirm(`⚠️ Bạn có chắc chắn muốn XÓA VĨNH VIỄN nhân viên [${empId}] ${empName} không?`)) {
+                fetch(`/delete_employee/${empId}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) { alert(data.message); location.reload(); } 
+                    else { alert("❌ " + data.message); }
+                }).catch(err => { alert("❌ Lỗi kết nối máy chủ!"); });
+            }
+        }
+    </script>
+</body>
+</html>
